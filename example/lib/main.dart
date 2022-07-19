@@ -534,7 +534,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    List<Testes> tss = json.map((i) => Testes.fromJson(i)).toList();
+    List<Testes> dataItems = json.map((i) => Testes.fromJson(i)).toList();
 
     return Scaffold(
       backgroundColor: const Color(0xFFE4E4E5),
@@ -543,46 +543,75 @@ class _MyHomePageState extends State<MyHomePage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
-              DialogSearch<Testes>.single(
-                items: tss,
-
-                mainFieldStyle: DialogSearchStyle(
-                  fieldStyle: FieldStyle(
-                    preffixWidget: const Padding(
-                        padding: EdgeInsets.symmetric(horizontal: 5),
-                        child: Icon(Icons.search_rounded,
-                            color: Color(0xFF353638))),
-                    suffixWidget: const Icon(Icons.keyboard_arrow_down_rounded,
-                        color: DefaultTheme.defaultTextColor),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 12, vertical: 16),
-                    shadow: [
-                      BoxShadow(
-                        color: DefaultTheme.defaultTextColor.withOpacity(.05),
-                        spreadRadius: 5,
-                        blurRadius: 7,
-                        offset:
-                            const Offset(0, 3), // changes position of shadow
-                      )
-                    ],
-                    radius: BorderRadius.circular(8),
-                    color: Colors.white,
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 40),
+                child: DialogSearch<Testes>.single(
+                  items: dataItems,
+                  initialValue: dataItems[4],
+                  attributeToSearch: (item) {
+                    return item.nome;
+                  },
+                  itemBuilder: (item, selected, searchContrast) {
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 15, horizontal: 10),
+                      child: selected
+                          ? Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    item.nome,
+                                    style: const TextStyle(
+                                        fontWeight: FontWeight.w600,
+                                        color: DefaultTheme.defaultTextColor),
+                                  ),
+                                ),
+                                const Icon(Icons.check_rounded,
+                                    color: DefaultTheme.defaultTextColor)
+                              ],
+                            )
+                          : searchContrast,
+                    );
+                  },
+                  dialogStyle: DialogSearchStyle(
+                    mainFieldStyle: FieldStyle(
+                      preffixWidget: const Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 5),
+                          child: Icon(Icons.search_rounded,
+                              color: Color(0xFF353638))),
+                      suffixWidget: const Icon(
+                          Icons.keyboard_arrow_down_rounded,
+                          color: DefaultTheme.defaultTextColor),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 12, vertical: 16),
+                      shadow: [
+                        BoxShadow(
+                          color: DefaultTheme.defaultTextColor.withOpacity(.05),
+                          spreadRadius: 5,
+                          blurRadius: 7,
+                          offset:
+                              const Offset(0, 3), // changes position of shadow
+                        )
+                      ],
+                      radius: BorderRadius.circular(8),
+                      color: Colors.white,
+                    ),
                   ),
+                  fieldBuilderExternal: (item) {
+                    return Row(
+                      children: [
+                        const Icon(Icons.close),
+                        Expanded(child: Text(item.nome)),
+                      ],
+                    );
+                  },
+                  onChange: (value) {},
+                  // itemsDefault: user,
+                  // itemLabel: (value) {
+                  //   return value['name'];
+                  // },
+                  // onChange: (value) {},
                 ),
-                fieldItemExternal: (item) {
-                  return Row(
-                    children: [
-                      const Icon(Icons.close),
-                      Expanded(child: Text(item.nome)),
-                    ],
-                  );
-                },
-                onChange: (value) {},
-                // itemsDefault: user,
-                // itemLabel: (value) {
-                //   return value['name'];
-                // },
-                // onChange: (value) {},
               ),
 
               // FutureBuilder(
