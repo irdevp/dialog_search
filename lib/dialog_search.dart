@@ -154,45 +154,45 @@ class DialogSearch<T> extends StatelessWidget {
           }
         });
       },
-      child: Hero(
-        tag: 'field_hero',
-        child: Material(
-            color: Colors.transparent,
-            child: Container(
-              padding: dialogStyle!.mainFieldStyle?.padding,
-              decoration: dialogStyle!.mainFieldStyle?.toBoxDecoration(),
-              child: ValueListenableBuilder(
-                  valueListenable: selectedValueIndex,
-                  builder: (_, List<int>? value, child) {
-                    // print(value);
-                    return Row(
-                      children: [
-                        dialogStyle!.mainFieldStyle?.preffixWidget ??
-                            const SizedBox.shrink(),
-                        Expanded(
-                          child: isMultiselect && (value ?? []).isNotEmpty
-                              ? Wrap(
-                                  children: (value ?? [])
-                                      .map((e) => Container(
-                                            color: Colors.red,
-                                            child: Text(e.toString()),
-                                          ))
-                                      .toList())
-                              : value!.isNotEmpty
-                                  ? fieldBuilderExternal(items[value.first])
-                                  : const Text(
-                                      "Select",
-                                      style: TextStyle(
-                                          fontSize: 16,
-                                          color: DefaultTheme.defaultTextColor),
-                                    ),
-                        ),
-                        dialogStyle!.mainFieldStyle?.suffixWidget ??
-                            const SizedBox.shrink()
-                      ],
-                    );
-                  }),
-            )),
+      child: Container(
+        padding: dialogStyle!.mainFieldStyle?.padding,
+        decoration: dialogStyle!.mainFieldStyle?.toBoxDecoration(),
+        child: ValueListenableBuilder(
+            valueListenable: selectedValueIndex,
+            builder: (_, List<int>? value, child) {
+              return Hero(
+                tag: 'field_hero',
+                child: Material(
+                  color: Colors.transparent,
+                  child: Row(
+                    children: [
+                      dialogStyle!.mainFieldStyle?.preffixWidget ??
+                          const SizedBox.shrink(),
+                      Expanded(
+                        child: isMultiselect && (value ?? []).isNotEmpty
+                            ? Wrap(
+                                children: (value ?? [])
+                                    .map((e) => Container(
+                                          color: Colors.red,
+                                          child: Text(e.toString()),
+                                        ))
+                                    .toList())
+                            : value!.isNotEmpty
+                                ? fieldBuilderExternal(items[value.first])
+                                : const Text(
+                                    "Select",
+                                    style: TextStyle(
+                                        fontSize: 16,
+                                        color: DefaultTheme.defaultTextColor),
+                                  ),
+                      ),
+                      dialogStyle!.mainFieldStyle?.suffixWidget ??
+                          const SizedBox.shrink()
+                    ],
+                  ),
+                ),
+              );
+            }),
       ),
     );
   }
