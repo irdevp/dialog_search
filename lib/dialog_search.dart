@@ -1,34 +1,49 @@
 library dialog_search;
 
 import 'package:flutter/material.dart';
+import 'package:http/http.dart';
 
 import 'core/custom_dialog.dart';
 import 'core/dialog_search_skeleton.dart';
 import 'core/utils/constants_colors.dart';
 
+// ignore: must_be_immutable
 class DialogSearch<T> extends StatelessWidget {
   late final bool isMultiselect;
-  late final bool isWeb;
+
   late final List<int> initialItemIndex;
-  late final Map<int, T> mapItems;
-  late final String url;
-  final List<T> items;
+  Map<int, T> mapItems = {};
+
+  late List<T> items;
   final dynamic initialValue;
+
+//WEB
+  late final String url;
+  late final bool isWeb;
+  late final List<T> Function(Response json) fromJson;
+  late final String Function(String search) urlInSearch;
+
+//ALL
 
   final void Function(List<T> newValue)? onChange;
   final bool Function()? beforeChange;
 
-  final Widget Function(T item) fieldItemExternal;
-  final DialogSearchStyle mainFieldStyle;
+  final Widget Function(T item) fieldBuilderExternal;
+  final Widget Function(T item, bool selected, RichText searchContrast)
+      itemBuilder;
+  final String Function(T) attributeToSearch;
 
+  late final DialogSearchStyle? dialogStyle;
   DialogSearch.single(
       {Key? key,
       required this.items,
       this.initialValue,
       this.onChange,
       this.beforeChange,
-      required this.fieldItemExternal,
-      this.mainFieldStyle = const DialogSearchStyle()})
+      required this.attributeToSearch,
+      required this.fieldBuilderExternal,
+      required this.itemBuilder,
+      this.dialogStyle})
       : assert(initialValue.runtimeType == T || initialValue == null),
         assert(items.contains(initialValue) == true || initialValue == null),
         super(key: key) {
@@ -41,11 +56,13 @@ class DialogSearch<T> extends StatelessWidget {
   DialogSearch.multi(
       {Key? key,
       required this.items,
+      required this.attributeToSearch,
       this.initialValue,
       this.onChange,
       this.beforeChange,
-      this.mainFieldStyle = const DialogSearchStyle(),
-      required this.fieldItemExternal})
+      this.dialogStyle,
+      required this.itemBuilder,
+      required this.fieldBuilderExternal})
       : assert((initialValue.runtimeType == List<T>) || initialValue == null),
         super(key: key) {
     isMultiselect = true;
@@ -71,22 +88,30 @@ class DialogSearch<T> extends StatelessWidget {
 
   DialogSearch.web(
       {Key? key,
-      this.items = const [],
       this.initialValue,
       this.onChange,
+      required this.attributeToSearch,
       this.beforeChange,
-      this.mainFieldStyle = const DialogSearchStyle(),
+      this.dialogStyle,
+      required this.itemBuilder,
       required this.url,
-      required this.fieldItemExternal})
+      required this.fromJson,
+      required this.urlInSearch,
+      required this.fieldBuilderExternal})
       : assert(initialValue.runtimeType == T || initialValue == null),
         super(key: key) {
     isMultiselect = false;
     isWeb = true;
     mapItems = {};
+    initialItemIndex = [];
   }
 
   @override
   Widget build(BuildContext context) {
+    dialogStyle ??= DialogSearchStyle();
+    dialogStyle!.dialogFrameStyle ??=
+        DialogFrameStyle(backgroundColor: Colors.white, hasDivider: false);
+
     debugPrint('RMK dialog_search');
     final ValueNotifier<List<int>?> selectedValueIndex =
         ValueNotifier<List<int>?>(initialItemIndex);
@@ -98,26 +123,34 @@ class DialogSearch<T> extends StatelessWidget {
           builder: (BuildContext dialogContext) {
             return SafeArea(
               child: CustomDialog<T>(
-                itemLabel: ((item) {
-                  return item.nome;
-                }),
-                listItem: mapItems,
+                itemBuild: itemBuilder,
+                fromJson: fromJson,
+                dialogStyle: dialogStyle!,
+                attributeToSearch: attributeToSearch,
+                items: mapItems,
                 selectedValueIndex: selectedValueIndex.value != null &&
                         selectedValueIndex.value!.isNotEmpty
                     ? selectedValueIndex.value!.first
                     : null,
+                isWeb: isWeb,
+                url: url,
+                urlInSearch: urlInSearch,
               ),
             );
           },
         ))
             .then((value) {
-          if (value != null && value.isNotEmpty) {
+          if (isWeb && value != null && value.isNotEmpty) {
+            items = value;
+            mapItems = value.asMap();
+            selectedValueIndex.value = [0];
+          } else if (value != null && value.isNotEmpty) {
             selectedValueIndex.value = value;
-
-            if (onChange != null) {
-              onChange!(
-                  selectedValueIndex.value!.map((e) => items[e]).toList());
-            }
+          }
+          if (onChange != null) {
+            onChange!(selectedValueIndex.value!
+                .map((e) => mapItems.values.toList()[e])
+                .toList());
           }
         });
       },
@@ -126,14 +159,15 @@ class DialogSearch<T> extends StatelessWidget {
         child: Material(
             color: Colors.transparent,
             child: Container(
-              padding: mainFieldStyle.fieldStyle?.padding,
-              decoration: mainFieldStyle.fieldStyle?.toBoxDecoration(),
+              padding: dialogStyle!.mainFieldStyle?.padding,
+              decoration: dialogStyle!.mainFieldStyle?.toBoxDecoration(),
               child: ValueListenableBuilder(
                   valueListenable: selectedValueIndex,
                   builder: (_, List<int>? value, child) {
+                    // print(value);
                     return Row(
                       children: [
-                        mainFieldStyle.fieldStyle?.preffixWidget ??
+                        dialogStyle!.mainFieldStyle?.preffixWidget ??
                             const SizedBox.shrink(),
                         Expanded(
                           child: isMultiselect && (value ?? []).isNotEmpty
@@ -145,7 +179,7 @@ class DialogSearch<T> extends StatelessWidget {
                                           ))
                                       .toList())
                               : value!.isNotEmpty
-                                  ? fieldItemExternal(items[value.first])
+                                  ? fieldBuilderExternal(items[value.first])
                                   : const Text(
                                       "Select",
                                       style: TextStyle(
@@ -153,7 +187,7 @@ class DialogSearch<T> extends StatelessWidget {
                                           color: DefaultTheme.defaultTextColor),
                                     ),
                         ),
-                        mainFieldStyle.fieldStyle?.suffixWidget ??
+                        dialogStyle!.mainFieldStyle?.suffixWidget ??
                             const SizedBox.shrink()
                       ],
                     );
@@ -165,9 +199,17 @@ class DialogSearch<T> extends StatelessWidget {
 }
 
 class DialogSearchStyle {
-  final FieldStyle? fieldStyle;
-
-  const DialogSearchStyle({this.fieldStyle});
+  FieldStyle? mainFieldStyle;
+  DialogFrameStyle? dialogFrameStyle;
+  Color? selectedItemColor;
+  Color? unselectedItemColor;
+  double radius;
+  DialogSearchStyle(
+      {this.dialogFrameStyle,
+      this.mainFieldStyle,
+      this.selectedItemColor,
+      this.unselectedItemColor,
+      this.radius = 8});
 }
 
 class FieldStyle {
@@ -198,4 +240,17 @@ class FieldStyle {
         gradient: gradient,
         boxShadow: shadow);
   }
+}
+
+class DialogFrameStyle {
+  final Color? backgroundColor;
+  final double radius;
+  final bool hasDivider;
+  final double elevation;
+
+  DialogFrameStyle(
+      {this.elevation = 1,
+      this.hasDivider = false,
+      this.backgroundColor,
+      this.radius = 8});
 }
