@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../dialog_search.dart';
 import 'utils/constants_colors.dart';
+import 'utils/dialog_search_style.dart';
 import 'utils/remove_accents.dart';
 import 'package:http/http.dart' as http;
 
@@ -75,17 +76,17 @@ class CustomDialog<T> extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
         child: Material(
           type: MaterialType.card,
-          color: dialogStyle.dialogFrameStyle!.backgroundColor,
-          borderRadius: BorderRadius.circular(dialogStyle.radius),
-          elevation: dialogStyle.dialogFrameStyle!.elevation,
+          color: dialogStyle.dialogFrameStyle.backgroundColor,
+          borderRadius: dialogStyle.dialogFrameStyle.radius,
+          elevation: dialogStyle.dialogFrameStyle.elevation,
           child: ClipRRect(
-            borderRadius: BorderRadius.circular(dialogStyle.radius),
+            borderRadius: dialogStyle.dialogFrameStyle.radius,
             child: Column(
               children: [
                 headWidget ?? const SizedBox.shrink(),
                 Container(
                   padding: headPadding,
-                  color: dialogStyle.dialogFrameStyle!.backgroundColor,
+                  color: dialogStyle.dialogFrameStyle.backgroundColor,
                   child: Hero(
                     tag: 'field_hero',
                     child: Material(
@@ -215,21 +216,22 @@ class CustomDialog<T> extends StatelessWidget {
                                     children: [
                                       Ink(
                                           decoration: BoxDecoration(
-                                            borderRadius: BorderRadius.circular(
-                                                dialogStyle.radius),
+                                            borderRadius: dialogStyle
+                                                .dialogItemTileStyle.radius,
                                             color: selectedValue != null &&
                                                     selectedValue!.value ==
                                                         item[index].value
                                                 ? (dialogStyle
+                                                        .dialogItemTileStyle
                                                         .selectedItemColor ??
                                                     DefaultTheme.unfocusColor)
                                                 : dialogStyle
+                                                    .dialogItemTileStyle
                                                     .unselectedItemColor,
                                           ),
                                           child: InkWell(
-                                              borderRadius:
-                                                  BorderRadius.circular(
-                                                      dialogStyle.radius),
+                                              borderRadius: dialogStyle
+                                                  .dialogItemTileStyle.radius,
                                               onTap: () {
                                                 FocusManager
                                                     .instance.primaryFocus
@@ -279,17 +281,17 @@ class CustomDialog<T> extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(10, 10, 10, 10),
       child: Material(
         type: MaterialType.card,
-        color: dialogStyle.dialogFrameStyle!.backgroundColor,
-        borderRadius: BorderRadius.circular(dialogStyle.radius),
-        elevation: dialogStyle.dialogFrameStyle!.elevation,
+        color: dialogStyle.dialogFrameStyle.backgroundColor,
+        borderRadius: dialogStyle.dialogFrameStyle.radius,
+        elevation: dialogStyle.dialogFrameStyle.elevation,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(dialogStyle.radius),
+          borderRadius: dialogStyle.dialogFrameStyle.radius,
           child: Column(
             children: [
               headWidget ?? const SizedBox.shrink(),
               Container(
                 padding: headPadding,
-                color: dialogStyle.dialogFrameStyle!.backgroundColor,
+                color: dialogStyle.dialogFrameStyle.backgroundColor,
                 child: Hero(
                   tag: 'field_hero',
                   child: Material(
@@ -409,17 +411,18 @@ class CustomDialog<T> extends StatelessWidget {
                                   children: [
                                     Ink(
                                         decoration: BoxDecoration(
-                                          borderRadius: BorderRadius.circular(
-                                              dialogStyle.radius),
+                                          borderRadius: dialogStyle
+                                              .dialogItemTileStyle.radius,
                                           color: selectedValue == item[index]
-                                              ? (dialogStyle
+                                              ? (dialogStyle.dialogItemTileStyle
                                                       .selectedItemColor ??
                                                   DefaultTheme.unfocusColor)
-                                              : dialogStyle.unselectedItemColor,
+                                              : dialogStyle.dialogItemTileStyle
+                                                  .unselectedItemColor,
                                         ),
                                         child: InkWell(
-                                            borderRadius: BorderRadius.circular(
-                                                dialogStyle.radius),
+                                            borderRadius: dialogStyle
+                                                .dialogItemTileStyle.radius,
                                             onTap: () {
                                               FocusManager.instance.primaryFocus
                                                   ?.unfocus();

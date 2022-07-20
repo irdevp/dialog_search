@@ -79,30 +79,6 @@ class _MyHomePageState extends State<MyHomePage> {
                           : searchContrast,
                     );
                   },
-                  dialogStyle: DialogSearchStyle(
-                    mainFieldStyle: FieldStyle(
-                      preffixWidget: const Padding(
-                          padding: EdgeInsets.symmetric(horizontal: 5),
-                          child: Icon(Icons.search_rounded,
-                              color: Color(0xFF353638))),
-                      suffixWidget: const Icon(
-                          Icons.keyboard_arrow_down_rounded,
-                          color: DefaultTheme.defaultTextColor),
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 16),
-                      shadow: [
-                        BoxShadow(
-                          color: DefaultTheme.defaultTextColor.withOpacity(.05),
-                          spreadRadius: 5,
-                          blurRadius: 7,
-                          offset:
-                              const Offset(0, 3), // changes position of shadow
-                        )
-                      ],
-                      radius: BorderRadius.circular(8),
-                      color: Colors.white,
-                    ),
-                  ),
                   fieldBuilderExternal: (item) {
                     return Row(
                       children: [

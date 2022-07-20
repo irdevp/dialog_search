@@ -6,6 +6,7 @@ import 'package:http/http.dart';
 import 'core/custom_dialog.dart';
 import 'core/dialog_search_skeleton.dart';
 import 'core/utils/constants_colors.dart';
+import 'core/utils/dialog_search_style.dart';
 
 // ignore: must_be_immutable
 class DialogSearch<T> extends StatelessWidget {
@@ -33,7 +34,9 @@ class DialogSearch<T> extends StatelessWidget {
       itemBuilder;
   final String Function(T) attributeToSearch;
 
-  late final DialogSearchStyle? dialogStyle;
+  //Default
+
+  final DialogSearchStyle? dialogStyle;
   DialogSearch.single(
       {Key? key,
       required this.items,
@@ -43,7 +46,27 @@ class DialogSearch<T> extends StatelessWidget {
       required this.attributeToSearch,
       required this.fieldBuilderExternal,
       required this.itemBuilder,
-      this.dialogStyle})
+      this.dialogStyle = const DialogSearchStyle(
+        mainFieldStyle: FieldStyle(
+          preffixWidget: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(Icons.search_rounded,
+                  color: DefaultTheme.defaultTextColor)),
+          suffixWidget: Icon(Icons.keyboard_arrow_down_rounded,
+              color: DefaultTheme.defaultTextColor),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          shadow: [
+            BoxShadow(
+              color: DefaultTheme.defaultShadowColor,
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3), // changes position of shadow
+            )
+          ],
+          radius: BorderRadius.all(Radius.circular(8.0)),
+          color: Colors.white,
+        ),
+      )})
       : assert(initialValue.runtimeType == T || initialValue == null),
         assert(items.contains(initialValue) == true || initialValue == null),
         super(key: key) {
@@ -60,7 +83,27 @@ class DialogSearch<T> extends StatelessWidget {
       this.initialValue,
       this.onChange,
       this.beforeChange,
-      this.dialogStyle,
+      this.dialogStyle = const DialogSearchStyle(
+        mainFieldStyle: FieldStyle(
+          preffixWidget: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(Icons.search_rounded,
+                  color: DefaultTheme.defaultTextColor)),
+          suffixWidget: Icon(Icons.keyboard_arrow_down_rounded,
+              color: DefaultTheme.defaultTextColor),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          shadow: [
+            BoxShadow(
+              color: DefaultTheme.defaultShadowColor,
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3), // changes position of shadow
+            )
+          ],
+          radius: BorderRadius.all(Radius.circular(8.0)),
+          color: Colors.white,
+        ),
+      ),
       required this.itemBuilder,
       required this.fieldBuilderExternal})
       : assert((initialValue.runtimeType == List<T>) || initialValue == null),
@@ -92,7 +135,27 @@ class DialogSearch<T> extends StatelessWidget {
       this.onChange,
       required this.attributeToSearch,
       this.beforeChange,
-      this.dialogStyle,
+      this.dialogStyle = const DialogSearchStyle(
+        mainFieldStyle: FieldStyle(
+          preffixWidget: Padding(
+              padding: EdgeInsets.symmetric(horizontal: 5),
+              child: Icon(Icons.search_rounded,
+                  color: DefaultTheme.defaultTextColor)),
+          suffixWidget: Icon(Icons.keyboard_arrow_down_rounded,
+              color: DefaultTheme.defaultTextColor),
+          padding: EdgeInsets.symmetric(horizontal: 12, vertical: 16),
+          shadow: [
+            BoxShadow(
+              color: DefaultTheme.defaultShadowColor,
+              spreadRadius: 5,
+              blurRadius: 7,
+              offset: Offset(0, 3), // changes position of shadow
+            )
+          ],
+          radius: BorderRadius.all(Radius.circular(8.0)),
+          color: Colors.white,
+        ),
+      ),
       required this.itemBuilder,
       required this.url,
       required this.fromJson,
@@ -108,10 +171,6 @@ class DialogSearch<T> extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    dialogStyle ??= DialogSearchStyle();
-    dialogStyle!.dialogFrameStyle ??=
-        DialogFrameStyle(backgroundColor: Colors.white, hasDivider: false);
-
     debugPrint('RMK dialog_search');
     final ValueNotifier<List<int>?> selectedValueIndex =
         ValueNotifier<List<int>?>(initialItemIndex);
@@ -196,61 +255,4 @@ class DialogSearch<T> extends StatelessWidget {
       ),
     );
   }
-}
-
-class DialogSearchStyle {
-  FieldStyle? mainFieldStyle;
-  DialogFrameStyle? dialogFrameStyle;
-  Color? selectedItemColor;
-  Color? unselectedItemColor;
-  double radius;
-  DialogSearchStyle(
-      {this.dialogFrameStyle,
-      this.mainFieldStyle,
-      this.selectedItemColor,
-      this.unselectedItemColor,
-      this.radius = 8});
-}
-
-class FieldStyle {
-  final Widget? suffixWidget;
-  final Widget? preffixWidget;
-  final List<BoxShadow>? shadow;
-  final BorderRadius? radius;
-  final EdgeInsetsGeometry? padding;
-  final Color? color;
-  final Gradient? gradient;
-  final BoxBorder? border;
-
-  const FieldStyle(
-      {this.suffixWidget,
-      this.preffixWidget,
-      this.shadow,
-      this.radius,
-      this.padding = const EdgeInsets.symmetric(horizontal: 12, vertical: 16),
-      this.color,
-      this.gradient,
-      this.border});
-
-  BoxDecoration? toBoxDecoration() {
-    return BoxDecoration(
-        borderRadius: radius,
-        border: border,
-        color: color,
-        gradient: gradient,
-        boxShadow: shadow);
-  }
-}
-
-class DialogFrameStyle {
-  final Color? backgroundColor;
-  final double radius;
-  final bool hasDivider;
-  final double elevation;
-
-  DialogFrameStyle(
-      {this.elevation = 1,
-      this.hasDivider = false,
-      this.backgroundColor,
-      this.radius = 8});
 }
