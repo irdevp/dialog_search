@@ -45,15 +45,15 @@ class _MyHomePageState extends State<MyHomePage> {
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 40),
                 child: DialogSearch<Testes>.web(
-                  url: 'https://62acd535402135c7acb9ac89.mockapi.io/api/user',
-                  fromJson: (response) {
-                    final l = json.decode(response.body);
-                    List<Testes> list = [Testes.fromJson(l)];
-                    return list;
+                  onSearch: (response) async {
+                    // https://62acd535402135c7acb9ac89.mockapi.io/api/user
+                    // final l = json.decode(response.body);
+                    // List<Testes> list = [Testes.fromJson(l)];
+                    return [];
                   },
-                  urlInSearch: (search) {
-                    return '/$search';
-                  },
+                  // urlInSearch: (search) {
+                  //   return '/$search';
+                  // },
                   attributeToSearch: (item) {
                     return item.nome;
                   },

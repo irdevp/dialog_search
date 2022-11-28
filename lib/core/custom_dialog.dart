@@ -2,11 +2,9 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 
-import '../dialog_search.dart';
 import 'utils/constants_colors.dart';
 import 'utils/dialog_search_style.dart';
 import 'utils/remove_accents.dart';
-import 'package:http/http.dart' as http;
 
 class CustomDialog<T> extends StatelessWidget {
   final int? selectedValueIndex;
@@ -27,8 +25,11 @@ class CustomDialog<T> extends StatelessWidget {
   //WEB
   final String? url;
   final bool isWeb;
-  final List<T> Function(http.Response json)? fromJson;
+  final Future<List<T>> Function(String search)? fromJson;
   final String Function(String search)? urlInSearch;
+
+  final String hintText;
+  final TextStyle hintStyle;
 
   CustomDialog({
     Key? key,
@@ -46,6 +47,8 @@ class CustomDialog<T> extends StatelessWidget {
     this.urlInSearch,
     required this.itemBuild,
     required this.dialogStyle,
+    required this.hintText,
+    required this.hintStyle,
   })  : itemsDefault = items.entries.toList(),
         selectedValue = selectedValueIndex != null
             ? items.entries.toList()[selectedValueIndex]
@@ -103,18 +106,15 @@ class CustomDialog<T> extends StatelessWidget {
 
                           debounce = Timer(const Duration(milliseconds: 200),
                               () async {
-                            final uri = Uri.parse(url! + urlInSearch!(value));
-                            final response = await http.get(uri);
-
-                            if (response.statusCode == 200) {
-                              try {
-                                filterListItem.value = fromJson!(response)
-                                    .asMap()
-                                    .entries
-                                    .toList();
-                              } catch (e) {
-                                filterListItem.value = [];
-                              }
+                            try {
+                              filterListItem.value = (await fromJson!(value))
+                                  .asMap()
+                                  .entries
+                                  .toList();
+                            } catch (e) {
+                              filterListItem.value = [];
+                              debugPrint(e.toString());
+                              rethrow;
                             }
                             loadingSearch.value = false;
                           });
@@ -149,7 +149,8 @@ class CustomDialog<T> extends StatelessWidget {
                                 ),
                                 hintText: selectedValue != null
                                     ? attributeToSearch(selectedValue!.value)
-                                    : 'Select',
+                                    : hintText,
+                                hintStyle: hintStyle,
                                 filled: true,
                                 fillColor: Colors.white,
                                 border: InputBorder.none,
@@ -265,7 +266,7 @@ class CustomDialog<T> extends StatelessWidget {
                             onPressed: () {
                               Navigator.of(context).pop();
                             },
-                            child: const Text('Close'),
+                            child: const Text('Fechar'),
                           )
                         ],
                       ),
